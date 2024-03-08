@@ -1,8 +1,11 @@
 [package]
-name = "helsing"
+name = "wizardly"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+axum = "0.7.4"
+tokio = { version = "1.36.0", features = ["full"] }
+tracing-subscriber = "0.3.18"
