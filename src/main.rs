@@ -6,7 +6,7 @@ use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use dotenv::dotenv;
-use fred::{clients::RedisPool, prelude::*};
+use fred::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -38,7 +38,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .build_pool(pool_size)
         .expect("Failed to create redis pool");
 
-    if redis_url != "" {
+    if std::env::var("REDIS_URL")? != "" {
         redis_pool.init().await.expect("Failed to connect to redis");
     }
 
