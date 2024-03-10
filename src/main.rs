@@ -5,14 +5,17 @@ use std::error::Error;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use dotenv::dotenv;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    dotenv()?;
+
     // initialize tracing
     tracing_subscriber::fmt::init();
 
-    let pg_url = "postgres://postgres::postrgres@localhost/test";
-    let redis_url = "redis://localhost";
+    let pg_url = std::env::var("POSTGRES_URL")
+    let redis_url = std::env::var("REDIS_URL")
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -26,7 +29,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let state = Arc::new(Mutex::new(state::StateInternal {
         database: pool,
-        cache: client.get_connection()?,
+        cache: client,
     }));
 
     // build our application with a route

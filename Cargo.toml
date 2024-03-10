@@ -16,3 +16,4 @@ serde_json = "1"
 sqlx = { version = "0.7.3", features = ["postgres", "runtime-tokio", "chrono"] }
 chrono = { version = "0.4", features = ["serde"]}
 names = { version = "0.14.0", default-features = false }
+dotenv = "0.15.0"
