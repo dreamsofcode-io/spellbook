@@ -7,13 +7,16 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use dotenv::dotenv;
 use fred::prelude::*;
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv()?;
 
     // initialize tracing
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .init();
 
     let pg_url = std::env::var("DATABASE_URL")?;
     let redis_url = match std::env::var("REDIS_URL")?.as_str() {
@@ -40,20 +43,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     if std::env::var("REDIS_URL")? != "" {
         redis_pool.init().await.expect("Failed to connect to redis");
+        let _ = redis_pool.flushall::<i32>(false).await;
     }
 
-    let state = Arc::new(Mutex::new(state::StateInternal {
-        database: dbpool,
-        cache: redis_pool,
-    }));
+    let state = Arc::new(
+        Mutex::new(
+            state::StateInternal::new(dbpool, redis_pool)
+        )
+    );
 
     // build our application with a route
     let app = Router::new()
+        .route("/spells", post(handler::create))
         .route("/spells", get(handler::list))
         .route("/spells/:id", get(handler::read))
-        .route("/spells", post(handler::create))
-        .route("/spells", put(handler::update))
-        .route("/spells", delete(handler::delete))
+        .route("/spells/:id", put(handler::update))
+        .route("/spells/:id", delete(handler::delete))
+        .layer(TraceLayer::new_for_http())
         .with_state(state);
 
     // run our app with hyper, listening globally on port 3000

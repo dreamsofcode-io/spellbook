@@ -10,7 +10,7 @@ use serde::{Serialize,Deserialize};
 use crate::state::AppState;
 use sqlx::FromRow;
 
-#[derive(Serialize, Deserialize, FromRow)]
+#[derive(Serialize, Deserialize, FromRow, Clone)]
 pub struct Spell {
     pub id: i64,
     pub name: String,
@@ -61,9 +61,9 @@ pub async fn update(
     Json(body): Json<update::UpdateBody>,
 ) -> StatusCode {
     match update::update(state, id, body).await {
-        Ok(rows) => {
-            match rows {
-                0 => StatusCode::NOT_FOUND,
+        Ok(x) => {
+            match x {
+                None => StatusCode::NOT_FOUND,
                 _ => StatusCode::OK,
             }
         }

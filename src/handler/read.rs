@@ -1,6 +1,8 @@
+#![allow(unused_imports)]
 use crate::handler::Spell;
 use crate::state::AppState;
 use std::error::Error;
+use fred::prelude::*;
 
 static QUERY: &str = "
 SELECT id, name, damage, created_at, updated_at
@@ -13,10 +15,10 @@ pub async fn find_by_id(
 ) -> Result<Option<Spell>, Box<dyn Error>> {
     let s = state.lock().await;
 
-    let res = sqlx::query_as(QUERY)
+    let res: Option<Spell> = sqlx::query_as(QUERY)
         .bind(id)
-        .fetch_optional(&s.database)
-    .await?;
+        .fetch_optional(&s.database).await?;
 
+    tracing::info!("returning database version");
     Ok(res)
 }
