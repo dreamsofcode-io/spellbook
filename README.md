@@ -1,1 +1,1 @@
-# Wizardly: An api tracking wizards and their known spells
+# Spellbook: An api tracking wizards and their known spells
