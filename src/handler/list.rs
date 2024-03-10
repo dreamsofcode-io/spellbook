@@ -2,22 +2,12 @@ use crate::handler::Spell;
 use crate::state::AppState;
 use std::error::Error;
 
-#[derive(serde::Deserialize)]
-struct Filter {
-    name: String,
-}
-
 static QUERY: &str = "
-SELECT id, name, damage
+SELECT id, name, damage, created_at, updated_at
 FROM spell
-WHERE name = $1
-ORDER BY level DESC
-LIMIT 20
 ";
 
-pub async fn list_spells(
-    state: AppState, filter: Filter,
-) -> Result<Vec<Spell>, Box<dyn Error>> {
+pub async fn list_spells(state: AppState) -> Result<Vec<Spell>, Box<dyn Error>> {
     let db = &state.lock().await.database;
-    Ok(sqlx::query_as(QUERY).bind(filter.name).fetch_all(db).await?)
+    Ok(sqlx::query_as(QUERY).fetch_all(db).await?)
 }

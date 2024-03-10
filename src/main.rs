@@ -32,7 +32,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // build our application with a route
     let app = Router::new()
         .route("/spells", get(handler::list))
-        .route("/spells/:id", get(handler::findbyid))
+        .route("/spells/:id", get(handler::read))
         .route("/spells", post(handler::create))
         .route("/spells", put(handler::update))
         .route("/spells", delete(handler::delete))

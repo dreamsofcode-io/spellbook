@@ -3,14 +3,15 @@ use crate::state::AppState;
 use std::error::Error;
 
 static QUERY: &str = "
-SELECT id, name, damage
+SELECT id, name, damage, created_at, updated_at
 FROM spell
 WHERE id = $1
 ";
 
-pub async fn list_spells(
-    state: AppState, id: i32,
-) -> Result<Vec<Spell>, Box<dyn Error>> {
+pub async fn find_by_id(
+    state: AppState, id: i64,
+) -> Result<Option<Spell>, Box<dyn Error>> {
     let db = &state.lock().await.database;
-    Ok(sqlx::query_as(QUERY).bind(id).fetch_all(db).await?)
+    let res = sqlx::query_as(QUERY).bind(id).fetch_optional(db).await?;
+    Ok(res)
 }

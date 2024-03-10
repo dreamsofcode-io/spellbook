@@ -1,23 +1,21 @@
 use crate::handler::Spell;
 use crate::state::AppState;
 use std::error::Error;
-use std::collections::Bound;
 
 #[derive(serde::Deserialize)]
-pub struct CreateSpell {
+pub struct CreateSpellBody {
     pub name: String,
     pub damage: i32,
 }
 
 static QUERY: &str = "
 INSERT INTO spell
-(name, damage, mana, level)
-VALUES
-($1, $2, $3, $4)
-RETURNING (id, name, damage)
+(name, damage)
+VALUES ($1, $2)
+RETURNING (id, name, damage, created_at, updated_at)
 ";
 
-pub async fn create(state: AppState, spell: CreateSpell) -> Result<Spell, Box<dyn Error>> {
+pub async fn create(state: AppState, spell: CreateSpellBody) -> Result<Spell, Box<dyn Error>> {
     let db = &state.lock().await.database;
 
     let spell = sqlx::query_as(QUERY)
