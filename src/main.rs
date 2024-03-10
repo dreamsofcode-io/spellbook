@@ -14,12 +14,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // initialize tracing
     tracing_subscriber::fmt::init();
 
-    let pg_url = std::env::var("POSTGRES_URL")
-    let redis_url = std::env::var("REDIS_URL")
+    let pg_url = std::env::var("POSTGRES_URL")?;
+    let redis_url = std::env::var("REDIS_URL")?;
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(pg_url).await?;
+        .connect(&pg_url).await?;
 
     tracing::info!("Running migrations. This can take a minute or so...");
     sqlx::migrate!().run(&pool).await?;
