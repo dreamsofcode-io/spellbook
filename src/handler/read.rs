@@ -11,7 +11,12 @@ WHERE id = $1
 pub async fn find_by_id(
     state: AppState, id: i64,
 ) -> Result<Option<Spell>, Box<dyn Error>> {
-    let db = &state.lock().await.database;
-    let res = sqlx::query_as(QUERY).bind(id).fetch_optional(db).await?;
+    let s = state.lock().await;
+
+    let res = sqlx::query_as(QUERY)
+        .bind(id)
+        .fetch_optional(&s.database)
+    .await?;
+
     Ok(res)
 }

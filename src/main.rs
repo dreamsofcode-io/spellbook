@@ -6,6 +6,7 @@ use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use dotenv::dotenv;
+use fred::{clients::RedisPool, prelude::*};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -14,24 +15,36 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // initialize tracing
     tracing_subscriber::fmt::init();
 
-    let pg_url = std::env::var("POSTGRES_URL")?;
-    let redis_url = std::env::var("REDIS_URL").unwrap_or(
-        "redis://localhost".to_string()
-    );
+    let pg_url = std::env::var("DATABASE_URL")?;
+    let redis_url = match std::env::var("REDIS_URL")?.as_str() {
+        "" => "redis://localhost:5432".to_string(),
+        x => x.to_string(),
+    };
 
-    let pool = PgPoolOptions::new()
+    let dbpool = PgPoolOptions::new()
         .max_connections(5)
         .connect(&pg_url).await?;
 
-    tracing::info!("Running migrations. This can take a minute or so...");
-    sqlx::migrate!().run(&pool).await?;
-    tracing::info!("Migrations complete");
+    sqlx::migrate!().run(&dbpool).await?;
 
-    let client = redis::Client::open(redis_url)?;
+    let pool_size = 8;
+    let config = RedisConfig::from_url(&redis_url)?;
+
+    let redis_pool = Builder::from_config(config)
+        .with_performance_config(|config| {
+            config.auto_pipeline = true;
+        })
+        .set_policy(ReconnectPolicy::new_exponential(0, 100, 30_000, 2))
+        .build_pool(pool_size)
+        .expect("Failed to create redis pool");
+
+    if redis_url != "" {
+        redis_pool.init().await.expect("Failed to connect to redis");
+    }
 
     let state = Arc::new(Mutex::new(state::StateInternal {
-        database: pool,
-        cache: client,
+        database: dbpool,
+        cache: redis_pool,
     }));
 
     // build our application with a route
