@@ -15,7 +15,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     tracing_subscriber::fmt::init();
 
     let pg_url = std::env::var("POSTGRES_URL")?;
-    let redis_url = std::env::var("REDIS_URL")?;
+    let redis_url = std::env::var("REDIS_URL").unwrap_or(
+        "redis://localhost".to_string()
+    );
 
     let pool = PgPoolOptions::new()
         .max_connections(5)

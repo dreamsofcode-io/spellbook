@@ -13,7 +13,7 @@ tracing = "0.1"
 tracing-subscriber = "0.3.18"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-sqlx = { version = "0.7.3", features = ["postgres", "runtime-tokio", "chrono"] }
+sqlx = { version = "0.7.3", features = ["postgres", "runtime-tokio", "chrono", "tls-rustls"] }
 chrono = { version = "0.4", features = ["serde"]}
 names = { version = "0.14.0", default-features = false }
 dotenv = "0.15.0"
