@@ -8,7 +8,13 @@ DELETE FROM spell WHERE id = $1
 pub async fn delete_spell(
     state: AppState, id: i64,
 ) -> Result<u64, Box<dyn Error>> {
-    let db = &state.lock().await.database;
-    let res = sqlx::query(QUERY).bind(id).execute(db).await?;
+    tracing::info!("deleting spell: {}", id);
+
+    let s = state.lock().await;
+
+    let res = sqlx::query(QUERY)
+        .bind(id)
+        .execute(&s.database).await?;
+
     Ok(res.rows_affected())
 }

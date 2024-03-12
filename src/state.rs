@@ -30,6 +30,10 @@ impl Cache {
     }
 
     pub async fn get(&mut self, id: i64) -> Result<Option<Spell>, Box<dyn Error>> {
+        if !self.internal.is_connected() {
+            return Err(Box::new(simple_error::SimpleError::new("not connected redis")));
+        }
+
         let value: Option<Value> = self.internal.get(Self::key_for_id(id)).await?;
 
         let spell = match value {
@@ -50,6 +54,10 @@ impl Cache {
         set_opts: Option<SetOptions>,
         get: bool
     ) -> Result<(), Box<dyn Error>> {
+        if !self.internal.is_connected() {
+            return Err(Box::new(simple_error::SimpleError::new("not connected redis")));
+        }
+
         let value: Value = serde_json::to_value(spell)?;
         let key = Self::key_for_id(id);
         self.internal.set(key, value.to_string(), expiration, set_opts, get).await?;
