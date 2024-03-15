@@ -15,9 +15,17 @@ Aiven.
 
 # Running
 
-First, make sure you have set your`REDIS_URL` and `POSTGRES_URL` in the .env.
+First, make sure you have set your`REDIS_URL` and `DATABASE_URL` defined in the .env.
 
-Then, to run this server, just use cargo.
+You can deploy a free instance of both redis and PostgreSQL using the sponsor of this
+video: Aiven.
+
+To do so, head to [https://go.aiven.io/dreamsofcode](https://go.aiven.io/dreamsofcode)
+and then sign up.
+
+You should be then able to create both a redis and PostgreSQL instance at no cost.
+
+Once configured you can run this server using cargo.
 
 ```
 cargo run 
