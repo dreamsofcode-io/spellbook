@@ -18,3 +18,4 @@ chrono = { version = "0.4", features = ["serde"]}
 names = { version = "0.14.0", default-features = false }
 dotenv = "0.15.0"
 tower-http = { version = "0.5", features = ["trace"] }
+simple-error = "0.3.0"
