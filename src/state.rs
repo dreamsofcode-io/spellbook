@@ -63,6 +63,15 @@ impl Cache {
         self.internal.set(key, value.to_string(), expiration, set_opts, get).await?;
         Ok(())
     }
+
+    pub async fn del(
+        &mut self,
+        id: i64
+    ) -> Result<(), Box<dyn Error>> {
+        let key = Self::key_for_id(id);
+        self.internal.del(key).await?;
+        Ok(())
+    }
 }
 
 pub type AppState = std::sync::Arc<tokio::sync::Mutex<StateInternal>>;
