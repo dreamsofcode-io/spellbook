@@ -8,6 +8,6 @@ FROM spell
 ";
 
 pub async fn list_spells(state: AppState) -> Result<Vec<Spell>, Box<dyn Error>> {
-    let db = &state.lock().await.database;
+    let db = &state.database;
     Ok(sqlx::query_as(QUERY).fetch_all(db).await?)
 }

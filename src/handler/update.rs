@@ -1,12 +1,12 @@
 #![allow(unused_imports)]
-use crate::state::AppState;
-use std::error::Error;
 use crate::handler::Spell;
+use crate::state::AppState;
 use fred::prelude::*;
+use std::error::Error;
 
 #[derive(serde::Deserialize)]
 pub struct UpdateBody {
-    pub damage: i32
+    pub damage: i32,
 }
 
 static QUERY: &str = "
@@ -15,16 +15,17 @@ RETURNING id, name, damage, created_at, updated_at
 ";
 
 pub async fn update(
-    state: AppState, id: i64, body: UpdateBody
+    state: AppState,
+    id: i64,
+    body: UpdateBody,
 ) -> Result<Option<Spell>, Box<dyn Error>> {
     tracing::info!("updating spell: {}", id);
-
-    let s = state.lock().await;
 
     let res: Option<Spell> = sqlx::query_as(QUERY)
         .bind(body.damage)
         .bind(id)
-        .fetch_optional(&s.database).await?;
+        .fetch_optional(&state.database)
+        .await?;
 
     Ok(res)
 }
