@@ -12,7 +12,7 @@ static QUERY: &str = "
 INSERT INTO spell
 (name, damage)
 VALUES ($1, $2)
-RETURNING (id, name, damage, created_at, updated_at)
+RETURNING id, name, damage, created_at, updated_at
 ";
 
 pub async fn create(state: AppState, spell: CreateSpellBody) -> Result<Spell, Box<dyn Error>> {
