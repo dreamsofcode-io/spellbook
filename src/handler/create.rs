@@ -16,12 +16,13 @@ RETURNING (id, name, damage, created_at, updated_at)
 ";
 
 pub async fn create(state: AppState, spell: CreateSpellBody) -> Result<Spell, Box<dyn Error>> {
-    let db = &state.lock().await.database;
+    let db = &state.database;
 
     let spell = sqlx::query_as(QUERY)
         .bind(&spell.name)
         .bind(&spell.damage)
-        .fetch_one(db).await?;
+        .fetch_one(db)
+        .await?;
 
     Ok(spell)
 }

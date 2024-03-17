@@ -1,12 +1,11 @@
 mod handler;
 mod state;
 use axum::routing::{delete, get, post, put, Router};
-use std::error::Error;
-use sqlx::postgres::PgPoolOptions;
-use std::sync::Arc;
-use tokio::sync::Mutex;
 use dotenv::dotenv;
 use fred::prelude::*;
+use sqlx::postgres::PgPoolOptions;
+use std::error::Error;
+use std::sync::Arc;
 use tower_http::trace::TraceLayer;
 
 #[tokio::main]
@@ -26,7 +25,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let dbpool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(&pg_url).await?;
+        .connect(&pg_url)
+        .await?;
 
     sqlx::migrate!().run(&dbpool).await?;
 
@@ -46,11 +46,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let _ = redis_pool.flushall::<i32>(false).await;
     }
 
-    let state = Arc::new(
-        Mutex::new(
-            state::StateInternal::new(dbpool, redis_pool)
-        )
-    );
+    let state = Arc::new(state::StateInternal::new(dbpool, redis_pool));
 
     // build our application with a route
     let app = Router::new()
@@ -63,9 +59,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_state(state);
 
     // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind(
-        "0.0.0.0:3000",
-    ).await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
     axum::serve(listener, app).await.unwrap();
 
